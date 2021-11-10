@@ -1,1 +1,1 @@
-web: gunicorn player_service:app
+web: gunicorn app:player_service
