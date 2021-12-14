@@ -6,7 +6,11 @@ import jass.game.rule_schieber
 import numpy as np
 from jass.game.game_observation import GameObservation
 from jass.game.const import card_strings
-from jass.game.const import trump_strings_short
+from tensorflow import keras
+
+from jass.game.const import (PUSH,  trump_ints,
+                             trump_strings_short)
+
 
 class LogisticRegressionTrump:  # noqa
 
@@ -30,3 +34,20 @@ class LogisticRegressionTrump:  # noqa
     def choose_trump(self, obs: GameObservation) -> int:    # noqa
         [trump] = self._model.predict(self.__get_cards_in_hand(obs))
         return trump_strings_short.index(trump[0])
+
+class DeepNeuralTrump: # noqa
+
+    def __init__(self):
+        self.int_to_trump = trump_ints + [PUSH] * 5
+        self._model = keras.models.load_model(Path("data") / "trump_dnn.h5")
+
+
+    def choose_trump(self, obs: GameObservation) -> int: # noqa
+        prediction = np.argsort(self._model.predict([
+            list(obs.hand.astype(float)) +
+            [float(obs.forehand + 1)]
+        ]))[0][::-1]
+
+        result = [self.int_to_trump[trump] for trump in prediction]
+        return next(trump for trump in result if obs.forehand == -1 or trump != PUSH)
+

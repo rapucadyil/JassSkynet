@@ -10,6 +10,7 @@ import logging
 from jass.service.player_service_app import PlayerServiceApp
 from jass.agents.agent_random_schieber import AgentRandomSchieber
 from player import PlayerLogisticRegrMCTS
+from player import PlayerDNNMCTS
 
 def create_app():
     """
